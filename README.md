@@ -50,14 +50,16 @@ A sleek, modern, dark-themed **Student Result Management System** with **role-ba
 | Fonts   | Google Fonts (Syne, DM Mono)            |
 
 
+## 📁 Project Structure
 
-## Project Structure
-
+```
 ResultHub/
 ├── index.html      # Main HTML structure
 ├── style.css       # All styling and themes
 └── script.js       # Authentication, CRUD, analytics logic
+```
 
+---
 
 ## 🔑 Default Credentials
 
@@ -79,8 +81,9 @@ Try logging in with any of the demo roll numbers:
 ## 📸 Screenshots
 
 LOGIN PAGE-: <img width="1920" height="928" alt="image" src="https://github.com/user-attachments/assets/17c1de68-adee-4aea-a29d-9796b1112122" />
-ADMIN DASHBOARD INTERFACE-: <img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/fe29ec22-afaa-4cf7-9c2e-50f82c724260" />
-ADMIN ALL STUDENTS INTERFACE-: <img width="1920" height="924" alt="image" src="https://github.com/user-attachments/assets/4b249e02-fb64-4ca9-815f-a5dba177ed7c" />
+ADMIN DASHBOARD INTERFACE-: <img width="1920" height="925" alt="image" src="https://github.com/user-attachments/assets/dfae1a97-130e-40a4-8442-13a57013c3fd" />
+ADMIN ALL STUDENTS PAGE-: <img width="1920" height="933" alt="image" src="https://github.com/user-attachments/assets/fe29ec22-afaa-4cf7-9c2e-50f82c724260" />
+ADMIN EDIT STUDENTS INTERFACE-: <img width="1920" height="924" alt="image" src="https://github.com/user-attachments/assets/4b249e02-fb64-4ca9-815f-a5dba177ed7c" />
 ADMIN ADD STUDENT INTERFACE-: <img width="1920" height="936" alt="image" src="https://github.com/user-attachments/assets/400b3500-5cbf-4404-b352-9909d9fa6b31" />
 STUDENT INTERFACE-: <img width="1920" height="925" alt="image" src="https://github.com/user-attachments/assets/6938bb1c-0c1c-42ea-b717-91a41a0fbbbd" />
 
