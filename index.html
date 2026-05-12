@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>ResultHub — Student Result Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div class="auth-screen" id="authScreen">
+  <div class="auth-box">
+    <div class="auth-logo">
+      <div class="auth-logo-dot">
+        <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+      </div>
+      <div class="auth-logo-name">ResultHub</div>
+    </div>
+
+    <div class="auth-tabs">
+      <div class="auth-tab active" onclick="switchAuthTab('admin',this)">Admin Login</div>
+      <div class="auth-tab" onclick="switchAuthTab('student',this)">Student View</div>
+    </div>
+
+    <!-- ADMIN LOGIN -->
+    <div id="authAdmin" class="auth-card">
+      <div class="auth-title">Administrator Login</div>
+      <div class="auth-sub">Only admins can add, edit, or delete student records. Students can view results in read-only mode.</div>
+      <div class="auth-error" id="adminError">Incorrect password. Please try again.</div>
+      <div class="auth-field">
+        <label>Admin Password</label>
+        <input type="password" id="adminPass" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')loginAdmin()"/>
+      </div>
+      <button class="auth-btn" onclick="loginAdmin()">Login as Admin</button>
+      
+    </div>
+
+    <!-- STUDENT LOGIN -->
+    <div id="authStudent" class="auth-card" style="display:none">
+      <div class="auth-title">Student View</div>
+      <div class="auth-sub">Enter your roll number to view your results. You will have read-only access — no editing allowed.</div>
+      <div class="auth-error" id="studentError">Roll number not found. Please check and try again.</div>
+      <div class="auth-field">
+        <label>Roll Number</label>
+        <input type="text" id="studentRoll" placeholder="e.g. ECE2024001" onkeydown="if(event.key==='Enter')loginStudent()"/>
+      </div>
+      <button class="auth-btn" onclick="loginStudent()">View My Results</button>
+      <div class="auth-hint">Contact your administrator if you can't find your record.</div>
+    </div>
+  </div>
+</div>
+
+<!-- TOPBAR -->
+<div class="topbar">
+  <div class="logo">
+    <div class="logo-dot">
+      <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+    </div>
+    ResultHub
+  </div>
+  <div class="nav-actions">
+    <div id="roleBadge" class="role-badge admin"><span class="role-dot"></span><span id="roleLabel">Admin</span></div>
+    <div class="search-wrap">
+      <span class="search-icon"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4.35-4.35m0 0A7.5 7.5 0 104.5 4.5a7.5 7.5 0 0012.15 12.15z"/></svg></span>
+      <input type="text" id="globalSearch" placeholder="Search students…" oninput="handleGlobalSearch(this.value)"/>
+    </div>
+    <button class="btn btn-primary" id="addStudentBtn" onclick="openAddModal()">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+      Add Student
+    </button>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </div>
+</div>
+
+<!-- SHELL -->
+<div class="shell">
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="nav-group-label">Menu</div>
+    <div class="nav-item active" onclick="showPage('dashboard',this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+      Dashboard
+    </div>
+    <div class="nav-item" onclick="showPage('students',this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-5.92-3.52M9 20H4v-2a4 4 0 015.92-3.52M15 7a4 4 0 11-8 0 4 4 0 018 0zm6 3a3 3 0 11-6 0 3 3 0 016 0zM3 10a3 3 0 116 0 3 3 0 01-6 0z"/></svg>
+      All Students
+    </div>
+    <div class="nav-item" onclick="showPage('analytics',this)">
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      Analytics
+    </div>
+    <div style="margin-top:2rem;padding-top:1.5rem;border-top:1px solid var(--border)">
+      <div class="nav-group-label">Quick Stats</div>
+      <div class="stat-mini-item"><span>Total Students</span><span class="stat-mini-val" id="sideTotal">0</span></div>
+      <div class="stat-mini-item"><span>Pass Rate</span><span class="stat-mini-val" id="sidePass">—</span></div>
+      <div class="stat-mini-item"><span>Class Avg</span><span class="stat-mini-val" id="sideAvg">—</span></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div id="page-dashboard" class="page active">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Dashboard</div>
+          <div class="page-sub">Overview of all student results</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card" style="--glow-color:rgba(0,229,160,0.12)">
+          <div class="stat-num" id="dashTotal">0</div>
+          <div class="stat-label">TOTAL STUDENTS</div>
+          <div class="stat-badge" style="background:rgba(0,229,160,0.1);color:var(--accent)">Enrolled</div>
+        </div>
+        <div class="stat-card" style="--glow-color:rgba(77,158,255,0.12)">
+          <div class="stat-num" id="dashPass">0</div>
+          <div class="stat-label">PASSED</div>
+          <div class="stat-badge" style="background:rgba(77,158,255,0.1);color:var(--info)" id="dashPassRate">0%</div>
+        </div>
+        <div class="stat-card" style="--glow-color:rgba(255,77,106,0.12)">
+          <div class="stat-num" id="dashFail">0</div>
+          <div class="stat-label">FAILED</div>
+          <div class="stat-badge" style="background:rgba(255,77,106,0.1);color:var(--danger)" id="dashFailRate">0%</div>
+        </div>
+        <div class="stat-card" style="--glow-color:rgba(255,184,48,0.12)">
+          <div class="stat-num" id="dashAvg">—</div>
+          <div class="stat-label">CLASS AVERAGE</div>
+          <div class="stat-badge" style="background:rgba(255,184,48,0.1);color:var(--warn)">GPA Avg</div>
+        </div>
+      </div>
+
+      <!-- Recent Table -->
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="table-title">Recent Students</div>
+          <button class="btn btn-ghost btn-sm" onclick="showPage('students',document.querySelector('[onclick*=students]'))">View All →</button>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Roll No.</th><th>Name</th><th>Branch</th><th>GPA</th><th>Grade</th><th>Status</th>
+          </tr></thead>
+          <tbody id="dashTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="dashEmpty">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          No students yet. Click "Add Student" to get started.
+        </div>
+      </div>
+    </div>
+
+    <!-- ALL STUDENTS -->
+    <div id="page-students" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">All Students</div>
+          <div class="page-sub" id="studentCount">0 students enrolled</div>
+        </div>
+        <button class="btn btn-primary" onclick="openAddModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          Add Student
+        </button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-toolbar">
+          <div class="table-title">Student Records</div>
+          <div class="filter-row">
+            <select class="filter-select" id="filterBranch" onchange="renderStudentsTable()">
+              <option value="">All Branches</option>
+              <option>ECE</option><option>CSE</option><option>ME</option><option>EE</option><option>CE</option>
+            </select>
+            <select class="filter-select" id="filterStatus" onchange="renderStudentsTable()">
+              <option value="">All Status</option>
+              <option value="Pass">Pass</option>
+              <option value="Fail">Fail</option>
+            </select>
+            <select class="filter-select" id="filterGrade" onchange="renderStudentsTable()">
+              <option value="">All Grades</option>
+              <option>A</option><option>B</option><option>C</option><option>D</option><option>F</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr>
+            <th>Roll No.</th><th>Name</th><th>Branch</th><th>Semester</th><th>Avg Marks</th><th>GPA</th><th>Grade</th><th>Status</th><th>Actions</th>
+          </tr></thead>
+          <tbody id="studentsTableBody"></tbody>
+        </table>
+        <div class="empty-state" id="studentsEmpty" style="display:none">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          No students match the selected filters.
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div id="page-analytics" class="page">
+      <div class="page-header">
+        <div>
+          <div class="page-title">Analytics</div>
+          <div class="page-sub">Visual breakdown of class performance</div>
+        </div>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="anTop">—</div><div class="stat-label">TOP SCORER</div></div>
+        <div class="stat-card"><div class="stat-num" id="anHighGPA">—</div><div class="stat-label">HIGHEST GPA</div></div>
+        <div class="stat-card"><div class="stat-num" id="anPassRate">—</div><div class="stat-label">PASS RATE</div></div>
+        <div class="stat-card"><div class="stat-num" id="anAvgGPA">—</div><div class="stat-label">AVG GPA</div></div>
+      </div>
+      <div class="chart-grid">
+        <div class="chart-card">
+          <div class="chart-card-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+            Average Marks by Subject
+          </div>
+          <div class="bar-chart" id="subjectBarChart"></div>
+        </div>
+        <div class="chart-card">
+          <div class="chart-card-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/></svg>
+            Grade Distribution
+          </div>
+          <div id="gradeDist"></div>
+        </div>
+        <div class="chart-card" style="grid-column:1/-1">
+          <div class="chart-card-title">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+            Students by Branch
+          </div>
+          <div class="bar-chart" id="branchBarChart" style="height:100px"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENT DETAIL -->
+    <div id="page-detail" class="page">
+      <div class="page-header">
+        <div style="display:flex;align-items:center;gap:12px">
+          <button class="btn btn-ghost btn-sm" onclick="showPage('students',document.querySelector('[onclick*=students]'))">← Back</button>
+          <div>
+            <div class="page-title" id="detailName">Student Name</div>
+            <div class="page-sub" id="detailSub">Roll No. | Branch</div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px">
+          <button class="btn btn-ghost btn-sm" id="detailEditBtn">Edit</button>
+          <button class="btn btn-danger btn-sm" id="detailDeleteBtn">Delete</button>
+        </div>
+      </div>
+      <div class="detail-grid">
+        <div class="detail-card">
+          <div class="detail-card-title">Subject-wise Marks</div>
+          <div id="detailSubjects"></div>
+        </div>
+        <div class="detail-card">
+          <div class="detail-card-title">Result Summary</div>
+          <div id="detailSummary"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-backdrop" id="studentModal">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle">Add New Student</div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Roll Number</label>
+          <input type="text" id="fRoll" placeholder="e.g. ECE2024001"/>
+        </div>
+        <div class="form-group">
+          <label>Full Name</label>
+          <input type="text" id="fName" placeholder="Student name"/>
+        </div>
+        <div class="form-group">
+          <label>Branch</label>
+          <select class="form-select" id="fBranch">
+            <option>ECE</option><option>CSE</option><option>ME</option><option>EE</option><option>CE</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Semester</label>
+          <select class="form-select" id="fSem">
+            <option>1</option><option>2</option><option>3</option><option>4</option>
+            <option>5</option><option>6</option><option>7</option><option>8</option>
+          </select>
+        </div>
+        <div class="form-divider">Subject Marks (out of 100)</div>
+        <div class="form-group">
+          <label>Mathematics</label>
+          <input type="number" id="fM1" min="0" max="100" placeholder="0–100"/>
+        </div>
+        <div class="form-group">
+          <label>Physics / Science</label>
+          <input type="number" id="fM2" min="0" max="100" placeholder="0–100"/>
+        </div>
+        <div class="form-group">
+          <label>Programming</label>
+          <input type="number" id="fM3" min="0" max="100" placeholder="0–100"/>
+        </div>
+        <div class="form-group">
+          <label>Electronics / Core</label>
+          <input type="number" id="fM4" min="0" max="100" placeholder="0–100"/>
+        </div>
+        <div class="form-group">
+          <label>English / Communication</label>
+          <input type="number" id="fM5" min="0" max="100" placeholder="0–100"/>
+        </div>
+        <div class="form-group">
+          <label>Elective</label>
+          <input type="number" id="fM6" min="0" max="100" placeholder="0–100"/>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveStudent()">Save Student</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
