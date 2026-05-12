@@ -1,4 +1,4 @@
-# 🎓 ResultHub — Student Result Management System
+# ResultHub — Student Result Management System
 
 A sleek, modern, dark-themed **Student Result Management System** with **role-based access control**, built using pure **HTML, CSS & JavaScript** — no frameworks, no dependencies, no backend required.
 
@@ -50,7 +50,7 @@ A sleek, modern, dark-themed **Student Result Management System** with **role-ba
 | Fonts   | Google Fonts (Syne, DM Mono)            |
 
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ResultHub/
